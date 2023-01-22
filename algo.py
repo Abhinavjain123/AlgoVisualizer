@@ -86,4 +86,27 @@ def make_grid(rows,width):
     return grid
 
 
+def draw_grid(win,rows,width):
+    gap = width // rows
+    #verticle lines
+    for i in range(rows):
+        pygame.draw.line(win,GREY,(gap*i,0),(gap*i,width),1)
+
+    #horizontal lines
+    for i in range(rows):
+        pygame.draw.line(win,GREY,(0,gap*i),(width,gap*i),1)
+
+def draw(win, grid, rows, width):
+    win.fill(WHITE)
+    for row in grid:
+        for spot in row:
+            spot.draw(win)
+
+    draw_grid(win,rows,width)
+    pygame.display.update()
+
+def get_clicked_pos(pos,rows,width):
+    gap = width // rows
+    x,y = pos
+    return x//gap, y//gap
 
