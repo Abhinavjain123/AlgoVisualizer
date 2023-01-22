@@ -4,6 +4,7 @@ from queue import PriorityQueue
 pygame.init()
 
 WIDTH = 800
+ROWS = 50
 WIN = pygame.display.set_mode((WIDTH,WIDTH))
 pygame.display.set_caption("A* Path Finding Algorithm")
 
@@ -45,7 +46,7 @@ class Spot:
     def is_path(self):
         return self.color == PURPLE
     def reset(self):
-        return self.color == WHITE
+        self.color = WHITE
     
     def make_closed(self):
         self.color = RED
@@ -110,3 +111,50 @@ def get_clicked_pos(pos,rows,width):
     x,y = pos
     return x//gap, y//gap
 
+
+def main(win,rows,width):
+    grid = make_grid(rows,width)
+
+    start = None    #starting spot
+    end = None      #ending spot
+
+    run = True      #looping condition
+    started = False #algorithm started or not
+
+    while run:
+        draw(win,grid,rows,width)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            
+            if started:   # if algorithm is running takes/gives no response
+                continue
+            
+            if pygame.mouse.get_pressed()[0]:  #left mouse button
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos,rows,width) #pixels to co-ordinate of grid
+                spot = grid[row][col]
+                if not start and spot != end:
+                    start = spot
+                    start.make_start()
+                elif not end and spot != start:
+                    end = spot
+                    end.make_end()
+                elif spot != start and spot != end:
+                    spot.make_barrier()
+
+
+            elif pygame.mouse.get_pressed()[2]: #right mouse button
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos,rows,width) #pixels to co-ordinate of grid
+                spot = grid[row][col]
+                spot.reset()
+                if spot==start:
+                    start=None
+                elif spot==end:
+                    end=None
+
+
+    pygame.quit()
+
+main(WIN,ROWS,WIDTH)
