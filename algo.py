@@ -1,6 +1,5 @@
 import pygame
-import math
-from queue import PriorityQueue
+import queue
 pygame.init()
 
 WIDTH = 800
@@ -95,7 +94,7 @@ def reconstruct_path(came_from,current,draw):
 
 def Astar(draw,grid,start,end):
     count = 0 #act as tie breaker when two f score is same, spot which put first, has low count should consider first
-    open_set = PriorityQueue()
+    open_set = queue.PriorityQueue()
     open_set.put((0,count,start))
     came_from = {}
     g_score  = {spot: float("inf") for row in grid for spot in row}
@@ -136,6 +135,74 @@ def Astar(draw,grid,start,end):
             current.make_closed()
 
     return False
+
+
+def Bfs(draw, grid,start,end):
+    open_set = queue.Queue()
+    came_from = {}
+    open_set_hash = {start}
+    open_set.put(start)
+
+    while not open_set.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+        current = open_set.get()
+        open_set_hash.remove(current)
+
+        if current == end:
+            reconstruct_path(came_from,end,draw)
+            end.make_end()
+            return True
+
+        for neighbor in current.neighbors:
+            if neighbor not in open_set_hash and neighbor != start and not neighbor.is_closed():
+                came_from[neighbor] = current
+                open_set_hash.add(neighbor)
+                open_set.put(neighbor)
+                neighbor.make_open()
+        
+        draw()
+        if current != start:
+            current.make_closed()
+
+    return False
+
+
+
+def Dfs(draw, grid,start,end):
+    open_set = []
+    came_from = {}
+    open_set_hash = {start}
+    open_set.append(start)
+
+    while not open_set==[]:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+        current = open_set.pop()
+        open_set_hash.remove(current)
+
+        if current == end:
+            reconstruct_path(came_from,end,draw)
+            end.make_end()
+            return True
+
+        for neighbor in current.neighbors:
+            if neighbor not in open_set_hash and neighbor != start and not neighbor.is_closed():
+                came_from[neighbor] = current
+                open_set_hash.add(neighbor)
+                open_set.append(neighbor)
+                neighbor.make_open()
+        
+        draw()
+        if current != start:
+            current.make_closed()
+
+    return False
+
 
 
 def make_grid(rows,width):
@@ -215,13 +282,29 @@ def main(win,rows,width):
                     end=None
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start and end:
+                if event.key == pygame.K_a and start and end:
                     # update neighbors for all spots
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
                     
                     Astar(lambda: draw(win,grid,rows,width), grid, start, end)
+
+                elif event.key == pygame.K_b and start and end:
+                    # update neighbors for all spots
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
+                    
+                    Bfs(lambda: draw(win,grid,rows,width), grid, start, end)
+
+                elif event.key == pygame.K_d and start and end:
+                    # update neighbors for all spots
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
+                    
+                    Dfs(lambda: draw(win,grid,rows,width), grid, start, end)
                     
 
                 if event.key == pygame.K_c:
