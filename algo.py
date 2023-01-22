@@ -69,3 +69,21 @@ class Spot:
     def __lt__(self,others): #less than - what happen if two spots are compared 
         return False         #other is always greater
 
+def h(p1,p2):
+    x1,y1 = p1
+    x2,y2 = p2
+    return abs(x1-x2) + abs(y1-y2)
+
+def make_grid(rows,width):
+    grid = []
+    gap = width // rows
+    for i in range(rows):
+        grid.append([])
+        for j in range(rows):
+            spot = Spot(i,j,gap,rows)
+            grid[i].append(spot)
+        
+    return grid
+
+
+
