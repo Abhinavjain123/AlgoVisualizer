@@ -85,6 +85,14 @@ def h(p1,p2):
     x2,y2 = p2
     return abs(x1-x2) + abs(y1-y2)
 
+def reconstruct_path(came_from,current,draw):
+    while current in came_from:
+        current = came_from[current]
+        current.make_path()
+        draw()
+    current.make_start()
+
+
 def Astar(draw,grid,start,end):
     count = 0 #act as tie breaker when two f score is same, spot which put first, has low count should consider first
     open_set = PriorityQueue()
@@ -105,6 +113,8 @@ def Astar(draw,grid,start,end):
         open_set_hash.remove(current)
 
         if current == end:
+            reconstruct_path(came_from,end,draw)
+            end.make_end()
             return True
 
         for neighbor in current.neighbors:
@@ -172,7 +182,6 @@ def main(win,rows,width):
     end = None      #ending spot
 
     run = True      #looping condition
-    started = False #algorithm started or not
 
     while run:
         draw(win,grid,rows,width)
@@ -180,8 +189,6 @@ def main(win,rows,width):
             if event.type == pygame.QUIT:
                 run = False
             
-            if started:   # if algorithm is running takes/gives no response
-                continue
             
             if pygame.mouse.get_pressed()[0]:  #left mouse button
                 pos = pygame.mouse.get_pos()
@@ -208,15 +215,19 @@ def main(win,rows,width):
                     end=None
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not started:
+                if event.key == pygame.K_SPACE and start and end:
                     # update neighbors for all spots
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
                     
                     Astar(lambda: draw(win,grid,rows,width), grid, start, end)
+                    
 
-
+                if event.key == pygame.K_c:
+                    start = None
+                    end = None
+                    grid = make_grid(rows,width)
 
     pygame.quit()
 
